@@ -1,15 +1,11 @@
 local M = {}
 local Job = require('plenary.job')
 local Path = require('plenary.path')
-
-function script_path()
-   local str = debug.getinfo(2, "S").source:sub(2)
-   return str:match("(.*/)")
-end
+local util = require('bzlrun.util')
 
 M._settings = {
     bazel = "bazel",
-    finder = script_path() .. '../../find-target-for-file.sh'
+    finder = util.script_path() .. '../../find-target-for-file.sh'
 }
 
 function M.setup(settings)
