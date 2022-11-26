@@ -9,24 +9,19 @@ local setup_dummy_buffer = function()
 end
 
 describe("bzlrun", function()
+    local some_buffer = setup_dummy_buffer()
+
+    bzlrun.setup({
+        -- stub out the script for finding the target
+        -- such that we don't actually need a
+        -- working bazel workspace for this test
+        finder = util.script_path() .. "/stub-finder.sh",
+        -- stub out bazel itself as well such that we
+        -- don't actually try to run any tests
+        bazel = "/usr/bin/true"
+    })
+
     describe("#run_tests_for_buffer", function()
-        local some_buffer
-
-        before_each(function()
-            some_buffer = setup_dummy_buffer()
-
-            bzlrun.setup({
-                -- stub out the script for finding the target
-                -- such that we don't actually need a
-                -- working bazel workspace for this test
-                finder = util.script_path() .. "/stub-finder.sh",
-                -- stub out bazel itself as well such that we
-                -- don't actually try to run any tests
-                bazel = "/usr/bin/true"
-            })
-        end)
-
-
         it("looks up the bazel target of the current buffer", function()
             local cmd = stub(vim, "cmd")
 
@@ -40,6 +35,14 @@ describe("bzlrun", function()
                     "//:dummy_target"
                 }
             })
+        end)
+
+        it("caches the target that was looked up", function()
+            bzlrun.run_tests_for_buffer(some_buffer)
+
+            local expected_cache = {}
+            expected_cache["somefile.txt"] = "//:dummy_target"
+            assert.are.same(bzlrun._cache, expected_cache)
         end)
     end)
 end)

@@ -8,6 +8,8 @@ M._settings = {
     finder = util.script_path() .. '../../find-target-for-file.sh'
 }
 
+M._cache = {}
+
 function M.setup(settings)
     M._settings = settings
     return M
@@ -21,18 +23,23 @@ function M.run_tests_for_buffer(buffer)
     local filepath = vim.api.nvim_buf_get_name(buffer)
     local relative_filepath = Path:new(filepath):make_relative()
 
-    local job = Job:new({
-        command = M._settings.finder,
-        args = {
-            vim.fn.getcwd(),
-            M._settings.bazel,
-            relative_filepath
-        },
-    })
-    job:sync()
+    local target = M._cache[relative_filepath]
+    if not target then
+        local job = Job:new({
+            command = M._settings.finder,
+            args = {
+                vim.fn.getcwd(),
+                M._settings.bazel,
+                relative_filepath
+            },
+        })
+        job:sync()
+        target = job:result()[1]
+        M._cache[relative_filepath] = target
+    end
     vim.cmd({
         cmd = "terminal",
-        args =  { M._settings.bazel, "test", job:result()[1] }
+        args =  { M._settings.bazel, "test", target }
     })
 end
 
