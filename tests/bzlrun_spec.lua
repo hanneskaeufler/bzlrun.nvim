@@ -1,4 +1,3 @@
-local mock = require('luassert.mock')
 local stub = require('luassert.stub')
 local bzlrun = require('bzlrun')
 local util = require('bzlrun.util')
@@ -11,7 +10,11 @@ end
 
 describe("bzlrun", function()
     describe("#run_tests_for_buffer", function()
+        local some_buffer
+
         before_each(function()
+            some_buffer = setup_dummy_buffer()
+
             bzlrun.setup({
                 -- stub out the script for finding the target
                 -- such that we don't actually need a
@@ -25,15 +28,17 @@ describe("bzlrun", function()
 
 
         it("looks up the bazel target of the current buffer", function()
-            local some_buffer = setup_dummy_buffer()
-
             local cmd = stub(vim, "cmd")
 
             bzlrun.run_tests_for_buffer(some_buffer)
 
             assert.stub(cmd).was_called_with({
                 cmd = "terminal",
-                args = { "/usr/bin/true", "test", "//:dummy_target" }
+                args = {
+                    "/usr/bin/true",
+                    "test",
+                    "//:dummy_target"
+                }
             })
         end)
     end)
