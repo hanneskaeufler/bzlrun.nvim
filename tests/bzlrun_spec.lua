@@ -2,14 +2,14 @@ local stub = require('luassert.stub')
 local bzlrun = require('bzlrun')
 local util = require('bzlrun.util')
 
-local setup_dummy_buffer = function()
+local setup_dummy_buffer = function(buffername)
     local buf = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_name(buf, "somefile.txt")
+    vim.api.nvim_buf_set_name(buf, buffername)
     return buf
 end
 
 describe("bzlrun", function()
-    local some_buffer = setup_dummy_buffer()
+    local some_buffer = setup_dummy_buffer("sometest.java")
 
     bzlrun.setup({
         -- stub out the script for finding the target
@@ -41,8 +41,25 @@ describe("bzlrun", function()
             bzlrun.run_tests_for_buffer(some_buffer)
 
             local expected_cache = {}
-            expected_cache["somefile.txt"] = "//:dummy_target"
+            expected_cache["sometest.java"] = "//:dummy_target"
             assert.are.same(bzlrun._cache, expected_cache)
+        end)
+
+        it("if the buffer is not a test, it runs the last test", function()
+            local test_buffer = setup_dummy_buffer("testfile.java")
+            local some_buffer = setup_dummy_buffer("productioncode.txt")
+            local cmd = stub(vim, "cmd")
+
+            bzlrun.run_tests_for_buffer(some_buffer)
+
+            assert.stub(cmd).was_called_with({
+                cmd = "terminal",
+                args = {
+                    "/usr/bin/true",
+                    "test",
+                    "//:dummy_target"
+                }
+            })
         end)
     end)
 end)

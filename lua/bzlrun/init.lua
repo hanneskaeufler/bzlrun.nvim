@@ -25,17 +25,22 @@ function M.run_tests_for_buffer(buffer)
 
     local target = M._cache[relative_filepath]
     if not target then
-        local job = Job:new({
-            command = M._settings.finder,
-            args = {
-                vim.fn.getcwd(),
-                M._settings.bazel,
-                relative_filepath
-            },
-        })
-        job:sync()
-        target = job:result()[1]
-        M._cache[relative_filepath] = target
+        if not util.is_testfile(relative_filepath) then
+            target = M._last_target
+        else
+            local job = Job:new({
+                command = M._settings.finder,
+                args = {
+                    vim.fn.getcwd(),
+                    M._settings.bazel,
+                    relative_filepath
+                },
+            })
+            job:sync()
+            target = job:result()[1]
+            M._cache[relative_filepath] = target
+            M._last_target = target
+        end
     end
     vim.cmd({
         cmd = "terminal",
