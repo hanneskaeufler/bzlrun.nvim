@@ -52,11 +52,9 @@ function M.run_tests_for_buffer(buffer)
         end
     end
 
-    local args
+    local args = { M._settings.bazel, "test", target }
     if M._args.has_value == true then
-        args = { M._settings.bazel, "test", M._args.value, target }
-    else
-        args = { M._settings.bazel, "test", target }
+        args[#args+1] = M._args.value
     end
     vim.cmd({ cmd = "terminal", args = args })
 end

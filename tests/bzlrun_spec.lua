@@ -34,8 +34,8 @@ describe("bzlrun", function()
                 args = {
                     "/usr/bin/true",
                     "test",
-                    '"--config=foo"',
-                    "//:dummy_target"
+                    "//:dummy_target",
+                    '"--config=foo"'
                 }
             })
 
