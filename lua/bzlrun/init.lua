@@ -44,6 +44,7 @@ function M.run_tests_for_buffer(buffer)
                     M._settings.bazel,
                     relative_filepath
                 },
+                env = vim.env
             })
             job:sync()
             target = job:result()[1]
