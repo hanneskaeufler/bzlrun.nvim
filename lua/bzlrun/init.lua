@@ -9,10 +9,19 @@ M._settings = {
 }
 
 M._cache = {}
+M._args = {
+    has_value = false,
+    value = nil
+}
 
 function M.setup(settings)
     M._settings = settings
     return M
+end
+
+function M.set_args(args)
+    M._args.value = args.args
+    M._args.has_value = true
 end
 
 function M.run_tests_for_current_buffer()
@@ -42,10 +51,14 @@ function M.run_tests_for_buffer(buffer)
             M._last_target = target
         end
     end
-    vim.cmd({
-        cmd = "terminal",
-        args =  { M._settings.bazel, "test", target }
-    })
+
+    local args
+    if M._args.has_value == true then
+        args = { M._settings.bazel, "test", M._args.value, target }
+    else
+        args = { M._settings.bazel, "test", target }
+    end
+    vim.cmd({ cmd = "terminal", args = args })
 end
 
 return M

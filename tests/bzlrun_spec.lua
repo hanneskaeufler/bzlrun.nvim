@@ -21,13 +21,42 @@ describe("bzlrun", function()
         bazel = "/usr/bin/true"
     })
 
-    describe("#run_tests_for_buffer", function()
-        it("looks up the bazel target of the current buffer", function()
-            local cmd = stub(vim, "cmd")
+    describe("plugin", function()
+        it("creates a command to set the bazel config", function()
+            vim.cmd('BzlrunSetArgs "--config=foo"')
+
+            stub(vim, "cmd")
 
             bzlrun.run_tests_for_buffer(some_buffer)
 
-            assert.stub(cmd).was_called_with({
+            assert.stub(vim.cmd).was_called_with({
+                cmd = "terminal",
+                args = {
+                    "/usr/bin/true",
+                    "test",
+                    '"--config=foo"',
+                    "//:dummy_target"
+                }
+            })
+
+            vim.cmd:revert()
+        end)
+    end)
+
+    describe("#run_tests_for_buffer", function()
+        before_each(function()
+            stub(vim, "cmd")
+            bzlrun._args.has_value = false
+        end)
+
+        after_each(function()
+            vim.cmd:revert()
+        end)
+
+        it("looks up the bazel target of the current buffer", function()
+            bzlrun.run_tests_for_buffer(some_buffer)
+
+            assert.stub(vim.cmd).was_called_with({
                 cmd = "terminal",
                 args = {
                     "/usr/bin/true",
@@ -48,11 +77,10 @@ describe("bzlrun", function()
         it("if the buffer is not a test, it runs the last test", function()
             local test_buffer = setup_dummy_buffer("testfile.java")
             local some_buffer = setup_dummy_buffer("productioncode.txt")
-            local cmd = stub(vim, "cmd")
 
             bzlrun.run_tests_for_buffer(some_buffer)
 
-            assert.stub(cmd).was_called_with({
+            assert.stub(vim.cmd).was_called_with({
                 cmd = "terminal",
                 args = {
                     "/usr/bin/true",
