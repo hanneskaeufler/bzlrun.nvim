@@ -8,6 +8,27 @@ local setup_dummy_buffer = function(buffername)
     return buf
 end
 
+FakeJob = {}
+
+function FakeJob:new(acc)
+    acc = acc or {}
+    setmetatable(acc, self)
+    self.__index = self
+    return acc
+end
+
+function FakeJob:after_success(fn)
+    self._after_success = fn
+end
+
+function FakeJob:start()
+    self._after_success(self)
+end
+
+function FakeJob:result()
+    return { "//:dummy_target" }
+end
+
 describe("bzlrun", function()
     local some_buffer = setup_dummy_buffer("sometest.java")
 
@@ -18,7 +39,13 @@ describe("bzlrun", function()
         finder = util.script_path() .. "/stub-finder.sh",
         -- stub out bazel itself as well such that we
         -- don't actually try to run any tests
-        bazel = "/usr/bin/true"
+        bazel = "/usr/bin/true",
+        asyncjob = function(opts)
+            return FakeJob:new()
+        end,
+        schedule = function(fn)
+            fn()
+        end
     })
 
     describe("plugin", function()

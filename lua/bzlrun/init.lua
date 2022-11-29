@@ -9,6 +9,7 @@ M._settings = {
     asyncjob = function(opts)
         return Job:new(opts)
     end,
+    schedule = vim.schedule
 }
 
 M._cache = {}
@@ -34,6 +35,9 @@ function M.setup(settings)
     end
     if settings["asyncjob"] then
         M._settings["asyncjob"] = settings["asyncjob"]
+    end
+    if settings["schedule"] then
+        M._settings["schedule"] = settings["schedule"]
     end
     return M
 end
@@ -68,9 +72,11 @@ function M.run_tests_for_buffer(buffer)
                 target = j:result()[1]
                 M._cache[relative_filepath] = target
                 M._last_target = target
-                run_test(M._settings.bazel, target, M._args)
+                M._settings.schedule(function()
+                    run_test(M._settings.bazel, target, M._args)
+                end)
             end)
-            job:sync()
+            job:start()
             return
         end
     end
