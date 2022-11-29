@@ -56,10 +56,12 @@ function M.run_tests_for_buffer(buffer)
                     relative_filepath
                 },
             })
+            job:after_success(function(j)
+                target = j:result()[1]
+                M._cache[relative_filepath] = target
+                M._last_target = target
+            end)
             job:sync()
-            target = job:result()[1]
-            M._cache[relative_filepath] = target
-            M._last_target = target
         end
     end
 
