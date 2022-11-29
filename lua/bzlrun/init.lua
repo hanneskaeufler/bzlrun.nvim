@@ -5,7 +5,10 @@ local util = require('bzlrun.util')
 
 M._settings = {
     bazel = "bazel",
-    finder = util.script_path() .. '../../find-target-for-file.sh'
+    finder = util.script_path() .. '../../find-target-for-file.sh',
+    asyncjob = function(opts)
+        return Job:new(opts)
+    end,
 }
 
 M._cache = {}
@@ -15,7 +18,15 @@ M._args = {
 }
 
 function M.setup(settings)
-    M._settings = settings
+    if settings["bazel"] then
+        M._settings["bazel"] = settings["bazel"]
+    end
+    if settings["finder"] then
+        M._settings["finder"] = settings["finder"]
+    end
+    if settings["asyncjob"] then
+        M._settings["asyncjob"] = settings["asyncjob"]
+    end
     return M
 end
 
@@ -37,7 +48,7 @@ function M.run_tests_for_buffer(buffer)
         if not util.is_testfile(relative_filepath) then
             target = M._last_target
         else
-            local job = Job:new({
+            local job = M._settings.asyncjob({
                 command = M._settings.finder,
                 args = {
                     vim.fn.getcwd(),
