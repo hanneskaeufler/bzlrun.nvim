@@ -17,6 +17,14 @@ M._args = {
     value = nil
 }
 
+local run_tests = function(bazel, target, args)
+    local cmd_args = { bazel, "test", target }
+    if args.has_value == true then
+        cmd_args[#cmd_args+1] = args.value
+    end
+    vim.cmd({ cmd = "terminal", args = cmd_args })
+end
+
 function M.setup(settings)
     if settings["bazel"] then
         M._settings["bazel"] = settings["bazel"]
@@ -65,11 +73,7 @@ function M.run_tests_for_buffer(buffer)
         end
     end
 
-    local args = { M._settings.bazel, "test", target }
-    if M._args.has_value == true then
-        args[#args+1] = M._args.value
-    end
-    vim.cmd({ cmd = "terminal", args = args })
+    run_tests(M._settings.bazel, target, M._args)
 end
 
 return M
