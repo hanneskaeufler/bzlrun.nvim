@@ -71,7 +71,7 @@ describe("bzlrun", function()
 
             local expected_cache = {}
             expected_cache["sometest.java"] = "//:dummy_target"
-            assert.are.same(bzlrun._cache, expected_cache)
+            assert.are.same(expected_cache, bzlrun._cache)
         end)
 
         it("if the buffer is not a test, it runs the last test", function()
