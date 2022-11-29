@@ -68,8 +68,10 @@ function M.run_tests_for_buffer(buffer)
                 target = j:result()[1]
                 M._cache[relative_filepath] = target
                 M._last_target = target
+                run_tests(M._settings.bazel, target, M._args)
             end)
             job:sync()
+            return
         end
     end
 
