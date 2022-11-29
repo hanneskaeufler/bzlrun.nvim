@@ -17,7 +17,7 @@ M._args = {
     value = nil
 }
 
-local run_tests = function(bazel, target, args)
+local run_test = function(bazel, target, args)
     local cmd_args = { bazel, "test", target }
     if args.has_value == true then
         cmd_args[#cmd_args+1] = args.value
@@ -68,14 +68,14 @@ function M.run_tests_for_buffer(buffer)
                 target = j:result()[1]
                 M._cache[relative_filepath] = target
                 M._last_target = target
-                run_tests(M._settings.bazel, target, M._args)
+                run_test(M._settings.bazel, target, M._args)
             end)
             job:sync()
             return
         end
     end
 
-    run_tests(M._settings.bazel, target, M._args)
+    run_test(M._settings.bazel, target, M._args)
 end
 
 return M
