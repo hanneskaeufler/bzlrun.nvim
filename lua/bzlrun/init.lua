@@ -1,21 +1,21 @@
-local M = {}
 local Job = require('plenary.job')
 local Path = require('plenary.path')
 local util = require('bzlrun.util')
 
-M._settings = {
-    bazel = "bazel",
-    finder = util.script_path() .. '../../find-target-for-file.sh',
-    asyncjob = function(opts)
-        return Job:new(opts)
-    end,
-    schedule = vim.schedule
-}
-
-M._cache = {}
-M._args = {
-    has_value = false,
-    value = nil
+local M = {
+    _settings = {
+        bazel = "bazel",
+        finder = util.script_path() .. '../../find-target-for-file.sh',
+        asyncjob = function(opts)
+            return Job:new(opts)
+        end,
+        schedule = vim.schedule
+    },
+    _cache = {},
+    _args = {
+        has_value = false,
+        value = nil
+    }
 }
 
 local run_test = function(bazel, target, args)
