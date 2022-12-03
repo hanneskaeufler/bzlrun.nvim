@@ -1,0 +1,29 @@
+name: Run tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install neovim
+      run: |
+          sudo add-apt-repository universe
+          sudo apt install -y libfuse2
+          mkdir -p build
+          wget https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage
+          chmod +x nvim.appimage
+          mv nvim.appimage ./build/nvim
+
+    - name: Run check
+      run: |
+          export PATH="${PWD}/build/:${PATH}"
+          make test
