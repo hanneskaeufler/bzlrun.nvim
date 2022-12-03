@@ -27,18 +27,7 @@ local run_test = function(bazel, target, args)
 end
 
 function M.setup(settings)
-    if settings["bazel"] then
-        M._settings["bazel"] = settings["bazel"]
-    end
-    if settings["finder"] then
-        M._settings["finder"] = settings["finder"]
-    end
-    if settings["asyncjob"] then
-        M._settings["asyncjob"] = settings["asyncjob"]
-    end
-    if settings["schedule"] then
-        M._settings["schedule"] = settings["schedule"]
-    end
+    M._settings = vim.tbl_deep_extend("force", M._settings, settings)
     return M
 end
 
