@@ -1,6 +1,6 @@
-local stub = require('luassert.stub')
-local bzlrun = require('bzlrun')
-local util = require('bzlrun.util')
+local stub = require("luassert.stub")
+local bzlrun = require("bzlrun")
+local util = require("bzlrun.util")
 
 local setup_dummy_buffer = function(buffername)
     local buf = vim.api.nvim_create_buf(false, true)
@@ -48,32 +48,34 @@ describe("bzlrun", function()
         end
     })
 
-    describe("plugin", function()
-        it("creates a command to set the bazel config", function()
-            vim.cmd('BzlrunSetArgs "--config=foo"')
+    before_each(function()
+        bzlrun._cache = {}
+        bzlrun._args.has_value = false
+        bzlrun._args.value = nil
+    end)
 
-            stub(vim, "cmd")
+    describe("#set_args", function()
+        it("appends an argument", function()
+            bzlrun.set_args({ args = "--config=foo" })
 
-            bzlrun.run_tests_for_buffer(some_buffer)
-
-            assert.stub(vim.cmd).was_called_with({
-                cmd = "terminal",
-                args = {
-                    "/usr/bin/true",
-                    "test",
-                    "//:dummy_target",
-                    '"--config=foo"'
-                }
+            assert.are.same(bzlrun._args, {
+                has_value = true,
+                value = "--config=foo"
             })
+        end)
+    end)
 
-            vim.cmd:revert()
+    describe("#clear_cache", function()
+        it("clears the file to target cache", function()
+            bzlrun._cache["sometest.java"] = "//:another_target"
+            bzlrun.clear_cache()
+            assert.are.same(bzlrun._cache, {})
         end)
     end)
 
     describe("#run_tests_for_buffer", function()
         before_each(function()
             stub(vim, "cmd")
-            bzlrun._args.has_value = false
         end)
 
         after_each(function()
@@ -89,6 +91,24 @@ describe("bzlrun", function()
                     "/usr/bin/true",
                     "test",
                     "//:dummy_target"
+                }
+            })
+        end)
+
+        it("uses the previously set argument to the bazel cli", function()
+            bzlrun._args = {
+                has_value = true,
+                value = "--config=foo"
+            }
+            bzlrun.run_tests_for_buffer(some_buffer)
+
+            assert.stub(vim.cmd).was_called_with({
+                cmd = "terminal",
+                args = {
+                    "/usr/bin/true",
+                    "test",
+                    "//:dummy_target",
+                    "--config=foo"
                 }
             })
         end)

@@ -1,5 +1,9 @@
+local bzlrun = require("bzlrun")
+
 vim.api.nvim_create_user_command(
-    'BzlrunSetArgs',
-    require("bzlrun").set_args,
-    {}
+    "BzlrunSetArgs", bzlrun.set_args, {}
+)
+
+vim.api.nvim_create_user_command(
+    "BzlrunClearCache", bzlrun.clear_cache, {}
 )
