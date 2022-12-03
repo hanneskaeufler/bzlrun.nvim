@@ -23,5 +23,5 @@ jobs:
 
     - name: Run check
       run: |
-          make test
           export PATH="${PWD}/build/:${PATH}"
+          make test
