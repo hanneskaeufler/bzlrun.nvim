@@ -36,6 +36,10 @@ function M.set_args(args)
     M._args.has_value = true
 end
 
+function M.clear_cache()
+    M._cache = {}
+end
+
 function M.run_tests_for_current_buffer()
     M.run_tests_for_buffer(0)
 end
