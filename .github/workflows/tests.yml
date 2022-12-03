@@ -16,6 +16,8 @@ jobs:
     
     - name: Install neovim
       run: |
+          sudo add-apt-repository universe
+          sudo apt install -y libfuse2
           mkdir -p build
           wget https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage
           chmod +x nvim.appimage
